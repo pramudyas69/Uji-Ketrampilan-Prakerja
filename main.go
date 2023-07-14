@@ -10,6 +10,10 @@ import (
 	userhandler "uji/users/delivery/http"
 	userrepository "uji/users/repository/postgre"
 	userusecase "uji/users/usecase"
+
+	sosmedhandler "uji/social_media/delivery/http"
+	sosmedrepository "uji/social_media/repository/postgre"
+	sosmedusecase "uji/social_media/usecase"
 )
 
 // @title MyGram
@@ -52,9 +56,15 @@ func main() {
 	// Serve Swagger documentation
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	//user ednpoint
 	userRepo := userrepository.NewUserRepsitory(db)
 	userUseCase := userusecase.NewUserUseCase(userRepo)
 	userhandler.NewUserHandler(e, userUseCase, db)
+
+	//sosmed endpoint
+	sosmedRepo := sosmedrepository.NewSosmedRepsitory(db)
+	sosmedUseCase := sosmedusecase.NewSosmedUseCase(sosmedRepo)
+	sosmedhandler.NewSosmedHandler(e, sosmedUseCase)
 
 	e.Start(":8000")
 
