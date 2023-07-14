@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"time"
 )
@@ -22,14 +21,14 @@ func (s *SocialMedia) BeforeCreate(tx *gorm.DB) (err error) {
 
 type SosmedUseCase interface {
 	CreateSosmedUC(sosmed *SocialMedia) error
-	GetSosmedsUC(ctx echo.Context) (*User, error)
-	UpdateSosmedUC(ctx echo.Context) (*SocialMedia, error)
-	DeleteSosmedUC(ctx echo.Context) (*SocialMedia, error)
+	GetSosmedsUC(sosmed []*SocialMedia) ([]*SocialMedia, error)
+	UpdateSosmedUC(id uint, sosmed *SocialMedia) (*SocialMedia, error)
+	DeleteSosmedUC(id uint) error
 }
 
 type SosmedRepository interface {
 	CreateSosmedRepository(sosmed *SocialMedia) error
-	GetSosmedsRepository(ctx echo.Context) (*User, error)
-	UpdateSosmedRepository(ctx echo.Context) (*SocialMedia, error)
-	DeleteSosmedRepository(ctx echo.Context) (*SocialMedia, error)
+	GetSosmedsRepository(sosmed []*SocialMedia) ([]*SocialMedia, error)
+	UpdateSosmedRepository(id uint, sosmed *SocialMedia) (*SocialMedia, error)
+	DeleteSosmedRepository(id uint) error
 }

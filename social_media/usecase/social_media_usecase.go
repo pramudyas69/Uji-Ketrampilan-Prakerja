@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"github.com/labstack/echo/v4"
 	"uji/domain"
 )
 
@@ -19,17 +18,14 @@ func (s SosmedUseCase) CreateSosmedUC(sosmed *domain.SocialMedia) error {
 	return s.sosmedRepo.CreateSosmedRepository(sosmed)
 }
 
-func (s SosmedUseCase) GetSosmedsUC(ctx echo.Context) (*domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (s SosmedUseCase) GetSosmedsUC(sosmed []*domain.SocialMedia) ([]*domain.SocialMedia, error) {
+	return s.sosmedRepo.GetSosmedsRepository(sosmed)
 }
 
-func (s SosmedUseCase) UpdateSosmedUC(ctx echo.Context) (*domain.SocialMedia, error) {
-	//TODO implement me
-	panic("implement me")
+func (s SosmedUseCase) UpdateSosmedUC(id uint, sosmed *domain.SocialMedia) (*domain.SocialMedia, error) {
+	return s.sosmedRepo.UpdateSosmedRepository(id, sosmed)
 }
 
-func (s SosmedUseCase) DeleteSosmedUC(ctx echo.Context) (*domain.SocialMedia, error) {
-	//TODO implement me
-	panic("implement me")
+func (s SosmedUseCase) DeleteSosmedUC(id uint) error {
+	return s.sosmedRepo.DeleteSosmedRepository(id)
 }
