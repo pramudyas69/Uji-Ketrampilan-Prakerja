@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"github.com/labstack/echo/v4"
 	"uji/domain"
 )
 
@@ -23,22 +22,18 @@ func (u UserUseCase) UserLoginUc(user *domain.User) error {
 	return u.userRepo.UserLoginRepository(user)
 }
 
-func (u UserUseCase) GetUserByIdUc(ctx echo.Context) (*domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserUseCase) GetUserByIdUc(id uint32) (*domain.User, error) {
+	return u.userRepo.GetUserByIdRepository(id)
 }
 
-func (u UserUseCase) GetUsersUc(ctx echo.Context) ([]*domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserUseCase) GetUsersUc(user []*domain.User) ([]*domain.User, error) {
+	return u.userRepo.GetUsersRepository(user)
 }
 
-func (u UserUseCase) UpdateUserUc(ctx echo.Context) (*domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserUseCase) UpdateUserUc(id uint32, user *domain.User) (*domain.User, error) {
+	return u.userRepo.UpdateUserRepository(id, user)
 }
 
-func (u UserUseCase) DeleteUserUc(ctx echo.Context) (*domain.User, error) {
-	//TODO implement me
-	panic("implement me")
+func (u UserUseCase) DeleteUserUc(id uint32) error {
+	return u.userRepo.DeleteUserRepository(id)
 }

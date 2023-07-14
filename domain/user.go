@@ -1,9 +1,7 @@
 package domain
 
 import (
-	"github.com/asaskevich/govalidator"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"time"
 	"uji/helpers"
@@ -23,40 +21,25 @@ type User struct {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	_, errCreate := govalidator.ValidateStruct(u)
-	if errCreate != nil {
-		err = errCreate
-		return
-	}
 	u.ID = uuid.New().ID()
 	u.Password = helpers.HashPassword(u.Password)
 	return nil
 }
 
-func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
-	_, errCreate := govalidator.ValidateStruct(u)
-
-	if errCreate != nil {
-		err = errCreate
-		return
-	}
-	return
-}
-
 type UserUseCase interface {
 	UserRegisterUc(user *User) error
 	UserLoginUc(user *User) error
-	GetUserByIdUc(ctx echo.Context) (*User, error)
-	GetUsersUc(ctx echo.Context) ([]*User, error)
-	UpdateUserUc(ctx echo.Context) (*User, error)
-	DeleteUserUc(ctx echo.Context) (*User, error)
+	GetUserByIdUc(id uint32) (*User, error)
+	GetUsersUc(user []*User) ([]*User, error)
+	UpdateUserUc(id uint32, user *User) (*User, error)
+	DeleteUserUc(id uint32) error
 }
 
 type UserRepository interface {
 	UserRegisterRepository(user *User) error
 	UserLoginRepository(user *User) error
-	GetUserByIdRepository(ctx echo.Context) (*User, error)
-	GetUsersRepository(ctx echo.Context) ([]*User, error)
-	UpdateUserRepository(ctx echo.Context) (*User, error)
-	DeleteUserRepository(ctx echo.Context) (*User, error)
+	GetUserByIdRepository(id uint32) (*User, error)
+	GetUsersRepository(user []*User) ([]*User, error)
+	UpdateUserRepository(id uint32, user *User) (*User, error)
+	DeleteUserRepository(id uint32) error
 }
