@@ -4,6 +4,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"uji/domain"
@@ -15,19 +16,19 @@ type SosmedHandler struct {
 	sosmedUseCase domain.SosmedUseCase
 }
 
-func NewSosmedHandler(e *echo.Echo, sosmedUc domain.SosmedUseCase) {
+func NewSosmedHandler(e *echo.Echo, sosmedUc domain.SosmedUseCase, db *gorm.DB) {
 	handler := SosmedHandler{
 		sosmedUseCase: sosmedUc,
 	}
 	router := e.Group("/sosmed")
-	//router.POST("/login", handler.LoginUser)
 	{
 		router.Use(middlewares.Authentication)
-		router.POST("", handler.CreateSosmed)
-		router.GET("", handler.GetSosmeds)
+		router.POST("/", handler.CreateSosmed)
+		router.GET("/", handler.GetSosmeds)
+		router.Use(middlewares.SosmedAuthorization(db))
 		router.PUT("/:Id", handler.UpdateSosmed)
 		router.DELETE("/:Id", handler.DeleteUser)
-		//router.Use(middlewares.UserAuthorization(db))
+
 	}
 }
 

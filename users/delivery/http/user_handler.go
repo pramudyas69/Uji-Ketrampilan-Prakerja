@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"github.com/asaskevich/govalidator"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -154,8 +153,6 @@ func (h *UserHandler) UpdateUser(ctx echo.Context) error {
 
 	res, err := h.userUseCase.UpdateUserUc(uint32(id), newUser)
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(newUser)
 		return helpers.ErrorHandler(ctx, err)
 	}
 
