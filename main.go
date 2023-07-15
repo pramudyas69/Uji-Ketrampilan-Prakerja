@@ -63,7 +63,7 @@ func main() {
 	userhandler.NewUserHandler(e, userUseCase, db)
 
 	//sosmed endpoint
-	sosmedRepo := sosmedrepository.NewSosmedRepsitory(db)
+	sosmedRepo := sosmedrepository.NewSosmedRepsitory(db, redisRepo)
 	sosmedUseCase := sosmedusecase.NewSosmedUseCase(sosmedRepo)
 	sosmedhandler.NewSosmedHandler(e, sosmedUseCase, db)
 
