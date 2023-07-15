@@ -26,7 +26,7 @@ func NewUserHandler(e *echo.Echo, userUc domain.UserUseCase, db *gorm.DB) {
 	{
 		router.Use(middlewares.Authentication)
 		router.GET("/:Id", handler.GetUserById)
-		router.GET("/", handler.GetUsers)
+		router.GET("", handler.GetUsers)
 		router.Use(middlewares.UserAuthorization(db))
 		router.PUT("/:Id", handler.UpdateUser)
 		router.DELETE("/:Id", handler.DeleteUser)
