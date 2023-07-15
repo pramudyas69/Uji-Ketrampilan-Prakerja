@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"uji/domain"
 	"uji/helpers"
+	"uji/helpers/other_helpers"
 	"uji/middlewares"
 )
 
@@ -131,7 +132,7 @@ func (h *UserHandler) GetUsers(ctx echo.Context) error {
 }
 
 func (h *UserHandler) UpdateUser(ctx echo.Context) error {
-	newUser := new(domain.User)
+	newUser := new(domain.UserUpdateInput)
 	id, _ := strconv.Atoi(ctx.Param("Id"))
 
 	if err := ctx.Bind(newUser); err != nil {
@@ -150,11 +151,9 @@ func (h *UserHandler) UpdateUser(ctx echo.Context) error {
 			Data:   "Validation Error!",
 		})
 	}
-
-	res, err := h.userUseCase.UpdateUserUc(uint32(id), newUser)
+	user := other_helpers.CopyStructUser(newUser)
+	res, err := h.userUseCase.UpdateUserUc(uint32(id), user)
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(newUser)
 		return helpers.ErrorHandler(ctx, err)
 	}
 
