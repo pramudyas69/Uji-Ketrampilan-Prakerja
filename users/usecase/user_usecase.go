@@ -26,7 +26,7 @@ func (u UserUseCase) GetUserByIdUc(id uint32) (*domain.User, error) {
 	return u.userRepo.GetUserByIdRepository(id)
 }
 
-func (u UserUseCase) GetUsersUc(user []*domain.User) ([]*domain.User, error) {
+func (u UserUseCase) GetUsersUc(user *[]domain.User) (*[]domain.User, error) {
 	return u.userRepo.GetUsersRepository(user)
 }
 

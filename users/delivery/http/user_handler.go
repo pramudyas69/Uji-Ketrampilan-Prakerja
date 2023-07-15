@@ -21,7 +21,7 @@ func NewUserHandler(e *echo.Echo, userUc domain.UserUseCase, db *gorm.DB) {
 		userUseCase: userUc,
 	}
 	router := e.Group("/users")
-	router.POST("/register", handler.RegiterUser)
+	router.POST("/register", handler.RegisterUser)
 	router.POST("/login", handler.LoginUser)
 	{
 		router.Use(middlewares.Authentication)
@@ -34,7 +34,9 @@ func NewUserHandler(e *echo.Echo, userUc domain.UserUseCase, db *gorm.DB) {
 
 }
 
-func (h *UserHandler) RegiterUser(ctx echo.Context) error {
+//var RedisClient *redis.Client
+
+func (h *UserHandler) RegisterUser(ctx echo.Context) error {
 	user := new(domain.User)
 
 	if err := ctx.Bind(&user); err != nil {
@@ -78,7 +80,6 @@ func (h *UserHandler) LoginUser(ctx echo.Context) error {
 	password := user.Password
 	err := h.userUseCase.UserLoginUc(user)
 	if err != nil {
-		fmt.Println(err.Error())
 		return helpers.ErrorHandler(ctx, err)
 	}
 
@@ -116,7 +117,7 @@ func (h *UserHandler) GetUserById(ctx echo.Context) error {
 }
 
 func (h *UserHandler) GetUsers(ctx echo.Context) error {
-	var user []*domain.User
+	var user *[]domain.User
 
 	res, err := h.userUseCase.GetUsersUc(user)
 	if err != nil {

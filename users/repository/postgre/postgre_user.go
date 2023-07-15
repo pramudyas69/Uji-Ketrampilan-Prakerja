@@ -1,22 +1,29 @@
 package postgre
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"gorm.io/gorm"
+	"time"
+	"uji/database/redis/repository"
 	"uji/domain"
 )
 
 type UserRepository struct {
-	DB *gorm.DB
+	DB        *gorm.DB
+	redisRepo repository.RedisRepository
 }
 
-func NewUserRepsitory(DB *gorm.DB) domain.UserRepository {
+func NewUserRepsitory(DB *gorm.DB, redisRepo repository.RedisRepository) domain.UserRepository {
 	return &UserRepository{
 		DB,
+		redisRepo,
 	}
 }
 
 func (u *UserRepository) UserRegisterRepository(user *domain.User) error {
+	ctx := context.Background()
 	err := u.DB.Where("username = ?", user.Username).Take(&user).Error
 	if err == nil {
 		return errors.New("Username Duplicate!")
@@ -26,7 +33,14 @@ func (u *UserRepository) UserRegisterRepository(user *domain.User) error {
 	if err == nil {
 		return errors.New("Email Duplicate!")
 	}
-	return u.DB.Debug().Create(&user).Error
+	err = u.redisRepo.DeleteKey(ctx, "users")
+	if err != nil {
+		return errors.New("error when clearing data in redis!")
+	}
+
+	err = u.DB.Debug().Create(&user).Error
+
+	return err
 }
 
 func (u *UserRepository) UserLoginRepository(user *domain.User) error {
@@ -40,14 +54,39 @@ func (u *UserRepository) GetUserByIdRepository(id uint32) (*domain.User, error) 
 	return &user, err
 }
 
-func (u *UserRepository) GetUsersRepository(user []*domain.User) ([]*domain.User, error) {
+func (u *UserRepository) GetUsersRepository(user *[]domain.User) (*[]domain.User, error) {
+	ctx := context.Background()
+
+	// Coba mendapatkan data dari Redis
+	res, err := u.redisRepo.GetValue(ctx, "users")
+	if err == nil {
+		err = json.Unmarshal([]byte(res), &user)
+		if err != nil {
+			return nil, err
+		}
+		return user, nil
+	}
+
+	// Jika data tidak ditemukan di Redis, ambil data dari database
 	if err := u.DB.Find(&user).Error; err != nil {
 		return nil, err
 	}
+
+	// Simpan data ke Redis
+	dataJSON, err := json.Marshal(user)
+	if err != nil {
+		return nil, err
+	}
+	err = u.redisRepo.SetValue(ctx, "users", dataJSON, 1*time.Hour)
+	if err != nil {
+		return nil, err
+	}
+
 	return user, nil
 }
 
 func (u *UserRepository) UpdateUserRepository(id uint32, user *domain.User) (*domain.User, error) {
+	ctx := context.Background()
 	var existingUser domain.User
 
 	err := u.DB.Where("id = ?", id).First(&existingUser).Error
@@ -68,9 +107,14 @@ func (u *UserRepository) UpdateUserRepository(id uint32, user *domain.User) (*do
 		existingUser.Age = user.Age
 	}
 
+	err = u.redisRepo.DeleteKey(ctx, "users")
+	if err != nil {
+		return nil, errors.New("error when clearing data in redis!")
+	}
+
 	err = u.DB.Save(&existingUser).Error
 
-	return &existingUser, nil
+	return &existingUser, err
 }
 
 func (u *UserRepository) DeleteUserRepository(id uint32) error {

@@ -20,6 +20,14 @@ type User struct {
 	UpdatedAt   time.Time     `json:"updated_at"`
 }
 
+type UserUpdateInput struct {
+	Username  string    `json:"username" gorm:"NOT NULL;unique;type:varchar(255);"`
+	Email     string    `json:"email" gorm:"NOT NULL;unique;type:varchar(255);" valid:"email"`
+	Password  string    `json:"password,omitempty" gorm:"NOT NULL;type:text;" valid:"minstringlength(6)"`
+	Age       uint      `json:"age" gorm:"NOT NULL;type:integer;" valid:"range(8|100)"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	u.ID = uuid.New().ID()
 	u.Password = helpers.HashPassword(u.Password)
@@ -30,7 +38,7 @@ type UserUseCase interface {
 	UserRegisterUc(user *User) error
 	UserLoginUc(user *User) error
 	GetUserByIdUc(id uint32) (*User, error)
-	GetUsersUc(user []*User) ([]*User, error)
+	GetUsersUc(user *[]User) (*[]User, error)
 	UpdateUserUc(id uint32, user *User) (*User, error)
 	DeleteUserUc(id uint32) error
 }
@@ -39,7 +47,7 @@ type UserRepository interface {
 	UserRegisterRepository(user *User) error
 	UserLoginRepository(user *User) error
 	GetUserByIdRepository(id uint32) (*User, error)
-	GetUsersRepository(user []*User) ([]*User, error)
+	GetUsersRepository(user *[]User) (*[]User, error)
 	UpdateUserRepository(id uint32, user *User) (*User, error)
 	DeleteUserRepository(id uint32) error
 }
