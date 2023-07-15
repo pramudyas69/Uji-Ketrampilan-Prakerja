@@ -1,4 +1,4 @@
-package database
+package postgre
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"uji/domain"
 )
 
 func init() {
@@ -27,12 +26,12 @@ func InitDatabase() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-	db.Debug().Migrator().DropTable(domain.User{}, domain.SocialMedia{}, domain.Photo{}, domain.Comment{})
-
-	db.Debug().AutoMigrate(domain.User{})
-	db.Debug().AutoMigrate(domain.SocialMedia{})
-	db.Debug().AutoMigrate(domain.Photo{})
-	db.Debug().AutoMigrate(domain.Comment{})
+	//db.Debug().Migrator().DropTable(domain.User{}, domain.SocialMedia{}, domain.Photo{}, domain.Comment{})
+	//
+	//db.Debug().AutoMigrate(domain.User{})
+	//db.Debug().AutoMigrate(domain.SocialMedia{})
+	//db.Debug().AutoMigrate(domain.Photo{})
+	//db.Debug().AutoMigrate(domain.Comment{})
 
 	return db, err
 }

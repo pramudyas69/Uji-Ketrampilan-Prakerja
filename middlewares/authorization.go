@@ -31,7 +31,7 @@ func UserAuthorization(db *gorm.DB) echo.MiddlewareFunc {
 				return c.JSON(http.StatusNotFound, helpers.WebResponse{
 					Status: "NOT_FOUND",
 					Code:   404,
-					Data:   "Data Not Found!",
+					Data:   "Data Not Found",
 				})
 			}
 

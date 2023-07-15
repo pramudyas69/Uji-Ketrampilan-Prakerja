@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -14,16 +14,21 @@ type SocialMedia struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
+func (s *SocialMedia) BeforeCreate(tx *gorm.DB) (err error) {
+
+	return nil
+}
+
 type SosmedUseCase interface {
-	CreateSosmedUC(ctx echo.Context) (*SocialMedia, error)
-	GetSosmedsUC(ctx echo.Context) (*User, error)
-	UpdateSosmedUC(ctx echo.Context) (*SocialMedia, error)
-	DeleteSosmedUC(ctx echo.Context) (*SocialMedia, error)
+	CreateSosmedUC(sosmed *SocialMedia) error
+	GetSosmedsUC(sosmed []*SocialMedia) ([]*SocialMedia, error)
+	UpdateSosmedUC(id uint, sosmed *SocialMedia) (*SocialMedia, error)
+	DeleteSosmedUC(id uint) error
 }
 
 type SosmedRepository interface {
-	CreateSosmedRepository(ctx echo.Context) (*SocialMedia, error)
-	GetSosmedsRepository(ctx echo.Context) (*User, error)
-	UpdateSosmedRepository(ctx echo.Context) (*SocialMedia, error)
-	DeleteSosmedRepository(ctx echo.Context) (*SocialMedia, error)
+	CreateSosmedRepository(sosmed *SocialMedia) error
+	GetSosmedsRepository(sosmed []*SocialMedia) ([]*SocialMedia, error)
+	UpdateSosmedRepository(id uint, sosmed *SocialMedia) (*SocialMedia, error)
+	DeleteSosmedRepository(id uint) error
 }
