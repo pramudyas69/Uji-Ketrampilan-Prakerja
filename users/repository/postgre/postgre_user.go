@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"time"
 	"uji/database/redis/repository"
@@ -49,8 +50,34 @@ func (u *UserRepository) UserLoginRepository(user *domain.User) error {
 
 func (u *UserRepository) GetUserByIdRepository(id uint32) (*domain.User, error) {
 	var user domain.User
+	ctx := context.Background()
+	Id := fmt.Sprintf("users%v", id)
 
-	err := u.DB.Where("id = ?", id).First(&user).Error
+	// Coba mendapatkan data dari Redis
+	res, err := u.redisRepo.GetValue(ctx, Id)
+	if err == nil {
+		err = json.Unmarshal([]byte(res), &user)
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
+	}
+	//fmt.Println(Id)
+
+	if err := u.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	// Simpan data ke Redis
+	dataJSON, err := json.Marshal(user)
+	if err != nil {
+		return nil, err
+	}
+	err = u.redisRepo.SetValue(ctx, Id, dataJSON, 1*time.Hour)
+	if err != nil {
+		return nil, err
+	}
+
 	return &user, err
 }
 
