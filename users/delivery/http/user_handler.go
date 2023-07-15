@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"uji/domain"
 	"uji/helpers"
-	"uji/helpers/other_helpers"
 	"uji/middlewares"
 )
 
@@ -22,12 +21,12 @@ func NewUserHandler(e *echo.Echo, userUc domain.UserUseCase, db *gorm.DB) {
 		userUseCase: userUc,
 	}
 	router := e.Group("/users")
-	router.POST("/register", handler.RegiterUser)
+	router.POST("/register", handler.RegisterUser)
 	router.POST("/login", handler.LoginUser)
 	{
 		router.Use(middlewares.Authentication)
 		router.GET("/:Id", handler.GetUserById)
-		router.GET("", handler.GetUsers)
+		router.GET("/", handler.GetUsers)
 		router.Use(middlewares.UserAuthorization(db))
 		router.PUT("/:Id", handler.UpdateUser)
 		router.DELETE("/:Id", handler.DeleteUser)
@@ -35,7 +34,9 @@ func NewUserHandler(e *echo.Echo, userUc domain.UserUseCase, db *gorm.DB) {
 
 }
 
-func (h *UserHandler) RegiterUser(ctx echo.Context) error {
+//var RedisClient *redis.Client
+
+func (h *UserHandler) RegisterUser(ctx echo.Context) error {
 	user := new(domain.User)
 
 	if err := ctx.Bind(&user); err != nil {
@@ -116,7 +117,7 @@ func (h *UserHandler) GetUserById(ctx echo.Context) error {
 }
 
 func (h *UserHandler) GetUsers(ctx echo.Context) error {
-	var user []*domain.User
+	var user *[]domain.User
 
 	res, err := h.userUseCase.GetUsersUc(user)
 	if err != nil {
@@ -131,7 +132,7 @@ func (h *UserHandler) GetUsers(ctx echo.Context) error {
 }
 
 func (h *UserHandler) UpdateUser(ctx echo.Context) error {
-	newUser := new(domain.UserUpdateInput)
+	newUser := new(domain.User)
 	id, _ := strconv.Atoi(ctx.Param("Id"))
 
 	if err := ctx.Bind(newUser); err != nil {
@@ -150,9 +151,11 @@ func (h *UserHandler) UpdateUser(ctx echo.Context) error {
 			Data:   "Validation Error!",
 		})
 	}
-	user := other_helpers.CopyStructUser(newUser)
-	res, err := h.userUseCase.UpdateUserUc(uint32(id), user)
+
+	res, err := h.userUseCase.UpdateUserUc(uint32(id), newUser)
 	if err != nil {
+		fmt.Println(err)
+		fmt.Println(newUser)
 		return helpers.ErrorHandler(ctx, err)
 	}
 

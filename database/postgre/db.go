@@ -1,18 +1,20 @@
-package database
+package postgre
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 	"os"
 )
 
-//func init() {
-//	err := godotenv.Load(".env")
-//	if err != nil {
-//		log.Fatal("Error loading .env file")
-//	}
-//}
+func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
 func InitDatabase() (*gorm.DB, error) {
 	DB_HOST := os.Getenv("DB_HOST")

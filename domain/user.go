@@ -38,7 +38,7 @@ type UserUseCase interface {
 	UserRegisterUc(user *User) error
 	UserLoginUc(user *User) error
 	GetUserByIdUc(id uint32) (*User, error)
-	GetUsersUc(user []*User) ([]*User, error)
+	GetUsersUc(user *[]User) (*[]User, error)
 	UpdateUserUc(id uint32, user *User) (*User, error)
 	DeleteUserUc(id uint32) error
 }
@@ -47,7 +47,7 @@ type UserRepository interface {
 	UserRegisterRepository(user *User) error
 	UserLoginRepository(user *User) error
 	GetUserByIdRepository(id uint32) (*User, error)
-	GetUsersRepository(user []*User) ([]*User, error)
+	GetUsersRepository(user *[]User) (*[]User, error)
 	UpdateUserRepository(id uint32, user *User) (*User, error)
 	DeleteUserRepository(id uint32) error
 }
