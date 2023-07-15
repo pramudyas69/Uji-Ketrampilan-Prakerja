@@ -3,19 +3,10 @@ package helpers
 import (
 	"errors"
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"log"
 	"os"
 	"strings"
 )
-
-func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
 
 var secretKey = os.Getenv("JWT_SECRET")
 
