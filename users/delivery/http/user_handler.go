@@ -78,7 +78,6 @@ func (h *UserHandler) LoginUser(ctx echo.Context) error {
 	password := user.Password
 	err := h.userUseCase.UserLoginUc(user)
 	if err != nil {
-		fmt.Println(err.Error())
 		return helpers.ErrorHandler(ctx, err)
 	}
 
