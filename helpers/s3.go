@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"log"
 	"mime/multipart"
+	"time"
 )
 
 // Fungsi untuk mengunggah gambar ke S3
@@ -38,7 +39,10 @@ func GetS3ImageURL(photoID string, svc *s3.S3) string {
 		Bucket: aws.String("mybucketgram"), // Ganti dengan nama bucket Anda
 		Key:    aws.String(fmt.Sprintf("photos/%s.jpg", photoID)),
 	})
-	url, err := req.Presign(0)
+
+	expirationTime := time.Now().AddDate(1, 0, 0)
+
+	url, err := req.Presign(8760 * time.Hour)
 	if err != nil {
 		log.Fatal(err)
 	}
