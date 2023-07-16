@@ -40,8 +40,6 @@ func GetS3ImageURL(photoID string, svc *s3.S3) string {
 		Key:    aws.String(fmt.Sprintf("photos/%s.jpg", photoID)),
 	})
 
-	expirationTime := time.Now().AddDate(1, 0, 0)
-
 	url, err := req.Presign(8760 * time.Hour)
 	if err != nil {
 		log.Fatal(err)
