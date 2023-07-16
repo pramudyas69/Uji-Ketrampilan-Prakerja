@@ -89,19 +89,19 @@ func SosmedAuthorization(db *gorm.DB) echo.MiddlewareFunc {
 func PhotoAuthorization(db *gorm.DB) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			userId := c.Param("Id")
-			//if err != nil {
-			//	return c.JSON(http.StatusBadRequest, helpers.WebResponse{
-			//		Status: "BAD_REQUEST",
-			//		Code:   400,
-			//		Data:   "Invalid Param!",
-			//	})
-			//}
+			userId, err := strconv.Atoi(c.Param("Id"))
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, helpers.WebResponse{
+					Status: "BAD_REQUEST",
+					Code:   400,
+					Data:   "Invalid Param!",
+				})
+			}
 			userData := c.Get("userData").(jwt.MapClaims)
 			userID := uint32(userData["id"].(float64))
 
 			var photo *domain.Photo
-			err := db.Select("id").First(&photo, string(userId)).Error
+			err = db.Select("user_id").First(&photo, uint32(userId)).Error
 
 			if err != nil {
 				return c.JSON(http.StatusNotFound, helpers.WebResponse{

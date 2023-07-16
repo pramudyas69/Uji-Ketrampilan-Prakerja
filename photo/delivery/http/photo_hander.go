@@ -60,7 +60,7 @@ func (h *PhotoHandler) CreatePhoto(ctx echo.Context) error {
 
 	photo.Caption = caption
 	photo.Title = title
-	photo.ID = uuid.New().String()
+	photo.ID = uuid.New().ID()
 
 	err = helpers.UploadImageToS3(string(photo.ID), src, file.Size, h.svc)
 	if err != nil {

@@ -45,7 +45,7 @@ func (u *UserRepository) UserRegisterRepository(user *domain.User) error {
 }
 
 func (u *UserRepository) UserLoginRepository(user *domain.User) error {
-	return u.DB.Where("email = ?", user.Email).Take(&user).Error
+	return u.DB.Preload("SocialMedia").Preload("Photo").Find(&user).Error
 }
 
 func (u *UserRepository) GetUserByIdRepository(id uint32) (*domain.User, error) {

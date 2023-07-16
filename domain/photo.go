@@ -5,7 +5,7 @@ import (
 )
 
 type Photo struct {
-	ID        string    `json:"id" gorm:"primarykey"`
+	ID        uint32    `json:"id" gorm:"primarykey"`
 	Title     string    `json:"title" gorm:"NOT NULL;type:varchar(255);" valid:"required"`
 	Caption   string    `json:"caption" gorm:"type:varchar(255);"`
 	PhotoURL  string    `json:"photo_url" gorm:"NOT NULL;type:text;" valid:"required"`
@@ -16,7 +16,7 @@ type Photo struct {
 }
 
 type PhotoUpdateInput struct {
-	ID       uint   `json:"id" gorm:"primarykey"`
+	ID       uint32 `json:"id" gorm:"primarykey"`
 	Title    string `json:"title" gorm:"NOT NULL;type:varchar(255);"`
 	Caption  string `json:"caption" gorm:"type:varchar(255);"`
 	PhotoURL string `json:"photo_url" gorm:"NOT NULL;type:text;"`
