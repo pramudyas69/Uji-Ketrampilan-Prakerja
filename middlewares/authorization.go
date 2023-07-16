@@ -101,7 +101,7 @@ func PhotoAuthorization(db *gorm.DB) echo.MiddlewareFunc {
 			userID := uint32(userData["id"].(float64))
 
 			var photo *domain.Photo
-			err := db.Select("user_id").First(&photo, string(userId)).Error
+			err := db.Select("id").First(&photo, string(userId)).Error
 
 			if err != nil {
 				return c.JSON(http.StatusNotFound, helpers.WebResponse{
