@@ -44,7 +44,7 @@ func (p *PhotoRepository) GetPhotosRepository(photo *[]domain.Photo) (*[]domain.
 		return photo, nil
 	}
 
-	if err := p.db.Find(&photo).Error; err != nil {
+	if err := p.db.Preload("Comment").Find(&photo).Error; err != nil {
 		return nil, err
 	}
 

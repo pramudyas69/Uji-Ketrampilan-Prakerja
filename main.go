@@ -10,6 +10,7 @@ import (
 	"uji/database/postgre"
 	"uji/database/redis"
 	"uji/database/redis/repository"
+	"uji/helpers"
 	userhandler "uji/users/delivery/http"
 	userrepository "uji/users/repository/postgre"
 	userusecase "uji/users/usecase"
@@ -21,23 +22,28 @@ import (
 	photohandler "uji/photo/delivery/http"
 	photorepository "uji/photo/repository/postgre"
 	photousecase "uji/photo/usecase"
+
+	commenthandler "uji/comment/delivery/http"
+	commentrepository "uji/comment/repository/postgre"
+	commentusecase "uji/comment/usecase"
 )
 
 //func init() {
 //	err := godotenv.Load(".env")
 //	if err != nil {
-//		log.Fatal("Error loading .env file")
+//		log.Fatal(err.Error())
 //	}
 //}
 
 func main() {
-	svc := aws.InitS3()
 	REDIS_HOST := os.Getenv("REDIS_HOST")
 	REDIS_PASSWORD := os.Getenv("REDIS_PASSWORD")
 	redisClient, err := redis.NewRedisClient(REDIS_HOST, REDIS_PASSWORD, 0)
 	if err != nil {
 		log.Fatalf("failed to create Redis client: %v", err)
 	}
+
+	svc := aws.InitS3()
 
 	db, err := postgre.InitDatabase()
 	if err != nil {
@@ -77,6 +83,11 @@ func main() {
 	photoUseCase := photousecase.NewPhotoRepository(photoRepo)
 	photohandler.NewPhotoHandler(e, photoUseCase, db, svc)
 
-	e.Start(":8000")
+	//comment endpoint
+	commentRepo := commentrepository.NewCommentRepository(db, redisRepo)
+	commentUseCase := commentusecase.NewCommentUseCase(commentRepo)
+	commenthandler.NewCommentUseCase(e, commentUseCase, db)
+
+	e.Start(helpers.GetPort())
 
 }
