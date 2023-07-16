@@ -39,8 +39,7 @@ func GetS3ImageURL(photoID string, svc *s3.S3) string {
 		Bucket: aws.String("mybucketgram"), // Ganti dengan nama bucket Anda
 		Key:    aws.String(fmt.Sprintf("photos/%s.jpg", photoID)),
 	})
-
-	url, err := req.Presign(8760 * time.Hour)
+	url, err := req.Presign(15 * time.Minute) // Membuat URL yang valid selama 15 menit
 	if err != nil {
 		log.Fatal(err)
 	}
