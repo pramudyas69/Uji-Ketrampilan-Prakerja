@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"time"
 	"uji/database/redis/repository"
@@ -34,6 +33,7 @@ func (u *UserRepository) UserRegisterRepository(user *domain.User) error {
 	if err == nil {
 		return errors.New("Email Duplicate!")
 	}
+
 	err = u.redisRepo.DeleteKey(ctx, "users")
 	if err != nil {
 		return errors.New("error when clearing data in redis!")
@@ -45,40 +45,20 @@ func (u *UserRepository) UserRegisterRepository(user *domain.User) error {
 }
 
 func (u *UserRepository) UserLoginRepository(user *domain.User) error {
-	return u.DB.Preload("SocialMedia").Preload("Photo").Find(&user).Error
+	return u.DB.Where("email = ?", user.Email).Take(&user).Error
 }
 
 func (u *UserRepository) GetUserByIdRepository(id uint32) (*domain.User, error) {
 	var user domain.User
-	ctx := context.Background()
-	Id := fmt.Sprintf("users%v", id)
-
-	// Coba mendapatkan data dari Redis
-	res, err := u.redisRepo.GetValue(ctx, Id)
-	if err == nil {
-		err = json.Unmarshal([]byte(res), &user)
-		if err != nil {
-			return nil, err
-		}
-		return &user, nil
-	}
-	//fmt.Println(Id)
 
 	if err := u.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		return nil, err
 	}
 
-	// Simpan data ke Redis
-	dataJSON, err := json.Marshal(user)
-	if err != nil {
+	if err := u.DB.Preload("SocialMedia").Preload("Photo").Preload("Comment").Find(&user).Error; err != nil {
 		return nil, err
 	}
-	err = u.redisRepo.SetValue(ctx, Id, dataJSON, 1*time.Hour)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, err
+	return &user, nil
 }
 
 func (u *UserRepository) GetUsersRepository(user *[]domain.User) (*[]domain.User, error) {
@@ -95,7 +75,7 @@ func (u *UserRepository) GetUsersRepository(user *[]domain.User) (*[]domain.User
 	}
 
 	// Jika data tidak ditemukan di Redis, ambil data dari database
-	if err := u.DB.Preload("SocialMedia").Preload("Photo").Find(&user).Error; err != nil {
+	if err := u.DB.Preload("SocialMedia").Preload("Photo").Preload("Comment").Find(&user).Error; err != nil {
 		return nil, err
 	}
 
