@@ -10,7 +10,7 @@ import (
 type RedisRepository interface {
 	SetValue(ctx context.Context, key string, value interface{}, expiration time.Duration) error
 	GetValue(ctx context.Context, key string) (string, error)
-	DeleteKey(ctx context.Context, key string) error
+	DeleteKey(ctx context.Context, key ...string) error
 }
 
 type redisRepository struct {
@@ -37,10 +37,12 @@ func (r *redisRepository) GetValue(ctx context.Context, key string) (string, err
 	return val, nil
 }
 
-func (r *redisRepository) DeleteKey(ctx context.Context, key string) error {
-	err := r.redisClient.DeleteKey(ctx, key)
-	if err != nil {
-		return fmt.Errorf("failed to delete key from Redis repository: %v", err)
+func (r *redisRepository) DeleteKey(ctx context.Context, key ...string) error {
+	for _, val := range key {
+		err := r.redisClient.DeleteKey(ctx, val)
+		if err != nil {
+			return fmt.Errorf("failed to delete key from Redis repository: %v", err)
+		}
 	}
 	return nil
 }

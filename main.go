@@ -17,6 +17,10 @@ import (
 	sosmedhandler "uji/social_media/delivery/http"
 	sosmedrepository "uji/social_media/repository/postgre"
 	sosmedusecase "uji/social_media/usecase"
+
+	photohandler "uji/photo/delivery/http"
+	photorepository "uji/photo/repository/postgre"
+	photousecase "uji/photo/usecase"
 )
 
 //func init() {
@@ -66,6 +70,11 @@ func main() {
 	sosmedRepo := sosmedrepository.NewSosmedRepsitory(db, redisRepo)
 	sosmedUseCase := sosmedusecase.NewSosmedUseCase(sosmedRepo)
 	sosmedhandler.NewSosmedHandler(e, sosmedUseCase, db)
+
+	//photo endpoint
+	photoRepo := photorepository.NewPhotoRepository(db, redisRepo)
+	photoUseCase := photousecase.NewPhotoRepository(photoRepo)
+	photohandler.NewPhotoHandler(e, photoUseCase, db)
 
 	e.Start(helpers.GetPort())
 
