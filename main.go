@@ -22,6 +22,10 @@ import (
 	photohandler "uji/photo/delivery/http"
 	photorepository "uji/photo/repository/postgre"
 	photousecase "uji/photo/usecase"
+
+	commenthandler "uji/comment/delivery/http"
+	commentrepository "uji/comment/repository/postgre"
+	commentusecase "uji/comment/usecase"
 )
 
 //func init() {
@@ -78,6 +82,11 @@ func main() {
 	photoRepo := photorepository.NewPhotoRepository(db, redisRepo)
 	photoUseCase := photousecase.NewPhotoRepository(photoRepo)
 	photohandler.NewPhotoHandler(e, photoUseCase, db, svc)
+
+	//comment endpoint
+	commentRepo := commentrepository.NewCommentRepository(db, redisRepo)
+	commentUseCase := commentusecase.NewCommentUseCase(commentRepo)
+	commenthandler.NewCommentUseCase(e, commentUseCase, db)
 
 	e.Start(helpers.GetPort())
 
