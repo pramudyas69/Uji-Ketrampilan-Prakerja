@@ -13,3 +13,14 @@ func CopyStructUser(source *domain.UserUpdateInput) *domain.User {
 
 	return target
 }
+
+func CopyStructPhoto(source *domain.PhotoUpdateInput) *domain.Photo {
+	// Meng-copy data dari struct source ke struct target
+	target := &domain.Photo{
+		Title:    source.Title,
+		PhotoURL: source.PhotoURL,
+		Caption:  source.Caption,
+	}
+
+	return target
+}

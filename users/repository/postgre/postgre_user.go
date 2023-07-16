@@ -95,7 +95,7 @@ func (u *UserRepository) GetUsersRepository(user *[]domain.User) (*[]domain.User
 	}
 
 	// Jika data tidak ditemukan di Redis, ambil data dari database
-	if err := u.DB.Find(&user).Error; err != nil {
+	if err := u.DB.Preload("SocialMedia").Preload("Photo").Find(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -145,11 +145,17 @@ func (u *UserRepository) UpdateUserRepository(id uint32, user *domain.User) (*do
 }
 
 func (u *UserRepository) DeleteUserRepository(id uint32) error {
+	ctx := context.Background()
 	var user domain.User
 
 	err := u.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return errors.New("record not found!")
+	}
+
+	err = u.redisRepo.DeleteKey(ctx, "users")
+	if err != nil {
+		return errors.New("error when clearing data in redis!")
 	}
 
 	return u.DB.Unscoped().Delete(&user).Error

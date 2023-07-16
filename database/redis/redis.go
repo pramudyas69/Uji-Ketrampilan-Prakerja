@@ -43,10 +43,13 @@ func (r *RedisClient) GetValue(ctx context.Context, key string) (string, error) 
 	return val, nil
 }
 
-func (r *RedisClient) DeleteKey(ctx context.Context, key string) error {
-	err := r.client.Del(ctx, key).Err()
-	if err != nil {
-		return fmt.Errorf("failed to delete key from Redis: %v", err)
+func (r *RedisClient) DeleteKey(ctx context.Context, key ...string) error {
+	for _, val := range key {
+		err := r.client.Del(ctx, val).Err()
+		if err != nil {
+			return fmt.Errorf("failed to delete key from Redis: %v", err)
+		}
 	}
+
 	return nil
 }

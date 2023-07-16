@@ -24,7 +24,7 @@ func NewSosmedRepsitory(DB *gorm.DB, redisRepo repository.RedisRepository) domai
 
 func (s *SosmedRepository) CreateSosmedRepository(sosmed *domain.SocialMedia) error {
 	ctx := context.Background()
-	err := s.redisRepo.DeleteKey(ctx, "sosmeds")
+	err := s.redisRepo.DeleteKey(ctx, "users", "sosmeds")
 	if err != nil {
 		return errors.New("error when clearing data in redis!")
 	}
@@ -63,6 +63,7 @@ func (s *SosmedRepository) GetSosmedsRepository(sosmed []*domain.SocialMedia) ([
 
 func (s *SosmedRepository) UpdateSosmedRepository(id uint, sosmed *domain.SocialMedia) (*domain.SocialMedia, error) {
 	var existingUser domain.SocialMedia
+	ctx := context.Background()
 
 	err := s.DB.Where("id = ?", id).First(&existingUser).Error
 	if err != nil {
@@ -76,6 +77,11 @@ func (s *SosmedRepository) UpdateSosmedRepository(id uint, sosmed *domain.Social
 		existingUser.SocialMediaURL = sosmed.SocialMediaURL
 	}
 
+	err = s.redisRepo.DeleteKey(ctx, "users", "sosmeds")
+	if err != nil {
+		return nil, errors.New("error when clearing data in redis!")
+	}
+
 	err = s.DB.Save(&existingUser).Error
 
 	return &existingUser, nil
@@ -83,10 +89,16 @@ func (s *SosmedRepository) UpdateSosmedRepository(id uint, sosmed *domain.Social
 
 func (s *SosmedRepository) DeleteSosmedRepository(id uint) error {
 	var sosmed domain.SocialMedia
+	ctx := context.Background()
 
 	err := s.DB.Where("id = ?", id).First(&sosmed).Error
 	if err != nil {
 		return errors.New("record not found!")
+	}
+
+	err = s.redisRepo.DeleteKey(ctx, "users", "sosmeds")
+	if err != nil {
+		return errors.New("error when clearing data in redis!")
 	}
 
 	return s.DB.Unscoped().Delete(&sosmed).Error
