@@ -5,7 +5,7 @@ import (
 )
 
 type Photo struct {
-	ID        uint      `json:"id" gorm:"primarykey"`
+	ID        string    `json:"id" gorm:"primarykey"`
 	Title     string    `json:"title" gorm:"NOT NULL;type:varchar(255);" valid:"required"`
 	Caption   string    `json:"caption" gorm:"type:varchar(255);"`
 	PhotoURL  string    `json:"photo_url" gorm:"NOT NULL;type:text;" valid:"required"`
