@@ -1,9 +1,10 @@
 package http
 
 import (
-	"fmt"
 	"github.com/asaskevich/govalidator"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 	"net/http"
@@ -16,11 +17,13 @@ import (
 
 type PhotoHandler struct {
 	photoUseCase domain.PhotoUseCase
+	svc          *s3.S3
 }
 
-func NewPhotoHandler(e *echo.Echo, photoUseCase domain.PhotoUseCase, db *gorm.DB) {
+func NewPhotoHandler(e *echo.Echo, photoUseCase domain.PhotoUseCase, db *gorm.DB, svc *s3.S3) {
 	handler := PhotoHandler{
 		photoUseCase: photoUseCase,
+		svc:          svc,
 	}
 	router := e.Group("/photo")
 	{
@@ -34,17 +37,43 @@ func NewPhotoHandler(e *echo.Echo, photoUseCase domain.PhotoUseCase, db *gorm.DB
 
 func (h *PhotoHandler) CreatePhoto(ctx echo.Context) error {
 	photo := new(domain.Photo)
-
-	if err := ctx.Bind(&photo); err != nil {
-		fmt.Println(photo)
+	title := ctx.FormValue("title")
+	caption := ctx.FormValue("caption")
+	file, err := ctx.FormFile("image")
+	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.WebResponse{
 			Status: "BAD_REQUEST",
 			Code:   400,
-			Data:   "Json Payload Invalid!",
+			Data:   "Invalid Upload Image!",
 		})
 	}
 
-	_, err := govalidator.ValidateStruct(photo)
+	src, err := file.Open()
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.WebResponse{
+			Status: "INTERNAL_SERVER_ERROR",
+			Code:   500,
+			Data:   "Invalid Open File!",
+		})
+	}
+	defer src.Close()
+
+	photo.Caption = caption
+	photo.Title = title
+	photo.ID = uuid.New().String()
+
+	err = helpers.UploadImageToS3(string(photo.ID), src, file.Size, h.svc)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.WebResponse{
+			Status: "BAD_REQUEST",
+			Code:   400,
+			Data:   "Invalid Upload Image to S3!",
+		})
+	}
+
+	photo.PhotoURL = helpers.GetS3ImageURL(string(photo.ID), h.svc)
+
+	_, err = govalidator.ValidateStruct(photo)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.WebResponse{
 			Status: "BAD_REQUEST",
