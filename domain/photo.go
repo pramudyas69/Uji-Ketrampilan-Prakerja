@@ -1,10 +1,6 @@
 package domain
 
 import (
-	"errors"
-	"github.com/asaskevich/govalidator"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -19,41 +15,23 @@ type Photo struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (p *Photo) BeforeCreate(tx *gorm.DB) (err error) {
-	_, errCreate := govalidator.ValidateStruct(p)
-
-	if errCreate != nil {
-		err = errCreate
-		return
-	}
-	println(govalidator.IsURL(p.PhotoURL))
-	isURL := govalidator.IsURL(p.PhotoURL)
-	if !isURL {
-		return errors.New("url not valid")
-	}
-
-	return
-}
-func (p *Photo) BeforeUpdate(tx *gorm.DB) (err error) {
-	_, errCreate := govalidator.ValidateStruct(p)
-
-	if errCreate != nil {
-		err = errCreate
-		return
-	}
-	return
+type PhotoUpdateInput struct {
+	ID       uint   `json:"id" gorm:"primarykey"`
+	Title    string `json:"title" gorm:"NOT NULL;type:varchar(255);"`
+	Caption  string `json:"caption" gorm:"type:varchar(255);"`
+	PhotoURL string `json:"photo_url" gorm:"NOT NULL;type:text;"`
 }
 
 type PhotoUseCase interface {
-	CreatePhotoUC(ctx echo.Context) (*Photo, error)
-	GetPhotosUC(ctx echo.Context) (*User, error)
-	UpdatePhotoUC(ctx echo.Context) (*Photo, error)
-	DeletePhotoUC(ctx echo.Context) (*Photo, error)
+	CreatePhotoUC(photo *Photo) error
+	GetPhotosUC(photo *[]Photo) (*[]Photo, error)
+	UpdatePhotoUC(id uint, photo *Photo) (*Photo, error)
+	DeletePhotoUC(id uint) error
 }
 
 type PhotoRepository interface {
-	CreatePhotoRepository(ctx echo.Context) (*Photo, error)
-	GetPhotosRepository(ctx echo.Context) (*User, error)
-	UpdatePhotoRepository(ctx echo.Context) (*Photo, error)
-	DeletePhotoRepository(ctx echo.Context) (*Photo, error)
+	CreatePhotoRepository(photo *Photo) error
+	GetPhotosRepository(photo *[]Photo) (*[]Photo, error)
+	UpdatePhotoRepository(id uint, photo *Photo) (*Photo, error)
+	DeletePhotoRepository(id uint) error
 }
