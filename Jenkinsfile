@@ -14,16 +14,29 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Test') {
             steps {
-                sh 'docker build -t myapp .'
+                sh 'go test ./...'
             }
         }
 
-        stage('Docker Deploy') {
+        stage('Docker Compose') {
             steps {
-                sh 'docker run -d -p 8080:8080 myapp'
+                script {
+                    // Stop and remove existing containers defined in docker-compose.yml
+                    sh 'docker-compose down'
+
+                    // Build and start services defined in docker-compose.yml
+                    sh 'docker-compose up -d'
+                }
             }
+        }
+    }
+
+    post {
+        always {
+            // Stop and remove containers after the pipeline finishes, regardless of the result
+            sh 'docker-compose down'
         }
     }
 }
