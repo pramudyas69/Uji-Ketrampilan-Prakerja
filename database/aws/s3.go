@@ -10,12 +10,12 @@ import (
 	"os"
 )
 
-func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
+//func init() {
+//	err := godotenv.Load(".env")
+//	if err != nil {
+//		log.Fatal("Error loading .env file")
+//	}
+//}
 
 func InitS3() *s3.S3 {
 	ACCESS_KEY := os.Getenv("ACCESS_KEY")
